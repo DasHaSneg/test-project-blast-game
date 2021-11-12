@@ -1,3 +1,13 @@
-.hello {
-  color: red;
+body, html {
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+@font-face {
+  font-family: 'Marvin';
+  src: url('../fonts/marvin-font.otf');
+  //src: local('BankGothic Md BT'), local('BankGothicBTMedium'), url('bankgthd-webfont.woff') format('woff'), url('bankgthd-webfont.ttf') format('truetype'), url('bankgthd-webfont.svg#webfontNgZtDOtM') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }

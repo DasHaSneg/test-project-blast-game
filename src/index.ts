@@ -1,14 +1,22 @@
-import _ from 'lodash';
 import './styles/style.scss';
+import World from './ts/world';
+import Game from './ts/game';
+import View from './ts/view';
 
-function component() {
-	const element = document.createElement('div');
+const canvas = <HTMLCanvasElement>document.querySelector('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-	// Lodash, currently included via a script, is required for this line to work
-	// Lodash, now imported by this script
-	element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-	element.classList.add('hello');
-	return element;
-}
+const n = 7;
+const m = 7;
+const c = 5;
+const k = 2;
+const s = 3;
+const x = 100;
+const y = 20;
 
-document.body.appendChild(component());
+const game = new Game(new View(canvas), n, m, c, k, s, x, y);
+
+game.init().then(() => game.start());
+
+console.log(game);
