@@ -24,6 +24,10 @@ module.exports = {
 				type: 'asset/resource',
 			},
 			{
+				test: /\.(woff|woff2|eot|ttf|otf)$/i,
+				type: 'asset/resource',
+			},
+			{
 				test: /\.tsx?$/,
 				use: 'ts-loader',
 				exclude: /node_modules/,
@@ -39,7 +43,7 @@ module.exports = {
 		extensions: ['.tsx', '.ts', '.js'],
 	},
 	output: {
-		filename: 'bundle.ts',
+		filename: 'bundle.js',
 		path: path.resolve(__dirname, 'dist'),
 	},
 };
