@@ -32,18 +32,17 @@ export default class Game {
 			k,
 			minStirringAmount: s,
 		};
-		console.log(gridInfo)
 		this.world = new World(gridInfo, x, y);
 		this.loop = this.loop.bind(this);
 	}
 
 	public async init() {
-		await this.view.init(this.world.getGrid());
-		this.world.init();
+		await this.view.init(this.world);
 		document.addEventListener('mousedown', e => {
 			this.userInput.x = e.offsetX;
 			this.userInput.y = e.offsetY;
 		});
+
 	}
 
 	public start() {
@@ -51,9 +50,10 @@ export default class Game {
 	}
 
 	private loop() {
-		// TODO get input info
-		// this.world.update(this.userInput);
-		// this.view.update(this.world);
+		this.world.update(this.userInput);
+		if (this.userInput.x !== 0 && this.userInput.y !== 0)
+			this.userInput = { x: 0, y: 0 };
+		this.view.update(this.world);
 		requestAnimationFrame(this.loop);
 	}
 }

@@ -1,5 +1,4 @@
 import './styles/style.scss';
-import World from './ts/world';
 import Game from './ts/game';
 import View from './ts/view';
 

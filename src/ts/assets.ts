@@ -15,19 +15,34 @@ import ProgressBlock from '../img/progress/bar/block.png';
 import ProgressScale from '../img/progress/bar/scale.png';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import BlueBlock from '../img/game/blocks/blue.png';
+import BlueBlock from '../img/game/blocks/blue2.png';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import GreenBlock from '../img/game/blocks/green.png';
+import GreenBlock from '../img/game/blocks/green2.png';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import YellowBlock from '../img/game/blocks/yellow.png';
+import YellowBlock from '../img/game/blocks/yellow2.png';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import PurpleBlock from '../img/game/blocks/purple.png';
+import PurpleBlock from '../img/game/blocks/purple2.png';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import RedBlock from '../img/game/blocks/red.png';
+import RedBlock from '../img/game/blocks/red2.png';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+// import SelectedBlueBlock from '../img/game/selected_blocks/blue2.png';
+// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// // @ts-ignore
+// import SelectedGreenBlock from '../img/game/selected_blocks/green2.png';
+// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// // @ts-ignore
+// import SelectedYellowBlock from '../img/game/selected_blocks/yellow2.png';
+// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// // @ts-ignore
+// import SelectedPurpleBlock from '../img/game/selected_blocks/purple2.png';
+// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// // @ts-ignore
+// import SelectedRedBlock from '../img/game/selected_blocks/red2.png';
 
 export default {
 	HeaderPanel,
@@ -40,4 +55,9 @@ export default {
 	PurpleBlock,
 	RedBlock,
 	YellowBlock,
+	// SelectedBlueBlock,
+	// SelectedGreenBlock,
+	// SelectedPurpleBlock,
+	// SelectedRedBlock,
+	// SelectedYellowBlock,
 };

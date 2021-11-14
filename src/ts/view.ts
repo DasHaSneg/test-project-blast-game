@@ -1,5 +1,7 @@
 import assets from './assets';
 import Grid from './grid';
+import World from './world';
+import Block from './block';
 
 type Assets = {
 	[key: string]: boolean;
@@ -26,12 +28,16 @@ export default class View {
 		return gameImages;
 	}
 
-	public async init(grid: Grid) {
+	public async init(world: World) {
 		this.gameImages = await this.loadImages();
-		await this.renderGameScene(grid);
+		this.renderGameScene(world.getGrid(), true);
 	}
 
-	// public update(world: World) {}
+	public update(world: World) {
+		this.clearScreen();
+		this.renderGameScene(world.getGrid());
+		this.renderGrid(world.getGrid());
+	}
 
 	// private async renderProgressScale() {
 	// 	if (!this.gameImages.has(GameImage.progressScale)) {
@@ -48,9 +54,7 @@ export default class View {
 		return img;
 	}
 
-	private renderGrid() {}
-
-	private async renderGameScene(grid: Grid) {
+	private renderGameScene(grid: Grid, isInit = false) {
 		const { width, height } = this.canvas;
 		const { HeaderPanel, ProgressBlock, ProgressScale, GamePanel, ScorePanel } = this.gameImages;
 
@@ -64,6 +68,7 @@ export default class View {
 
 		this.ctx.drawImage(GamePanel, width / 2 - GamePanel.width / 4, HeaderPanel.height / 4 + 50, GamePanel.width / 4, GamePanel.height / 4);
 
+
 		this.ctx.drawImage(ScorePanel, width / 2 + 125, HeaderPanel.height / 4 + 100, ScorePanel.width / 4, ScorePanel.height / 4);
 
 		this.ctx.fillStyle = '#fff';
@@ -71,17 +76,40 @@ export default class View {
 		this.ctx.fillText('прогресс', width / 2 - 70, 23);
 		this.ctx.fillText('время:', width / 2 + 225, HeaderPanel.height / 4 + 50 + 20);
 
-		const startX = width / 2 - GamePanel.width / 4 + 7;
-		const startY = HeaderPanel.height / 4 + 50 + 7;
-		const desk = grid.getDesk();
-		const blockWidth = this.gameImages[desk[0][0].getColor()].width / 6;
-		const blockHeight = this.gameImages[desk[0][0].getColor()].height / 6;
-		console.log(desk);
-		for (let i = 0; i < grid.getN(); i += 1) {
-			for (let j = 0; j < grid.getM(); j += 1) {
-				this.ctx.drawImage(this.gameImages[desk[i][j].getColor()], startX + blockWidth * j, startY + blockHeight * i, blockWidth, blockHeight);
+		if (isInit) {
+			const startX = width / 2 - GamePanel.width / 4 + 7;
+			const startY = HeaderPanel.height / 4 + 50 + 7;
+			const desk = grid.getDesk();
+			const blockWidth = this.gameImages[desk[0][0].getColorImageName()].width / 3.03;
+			const blockHeight = this.gameImages[desk[0][0].getColorImageName()].height / 3.03;
+
+			grid.setPosition({ x: startX + blockWidth * grid.getM() + 5, y: startY });
+			grid.setSize({ width: blockWidth * grid.getM() + 5, height: blockHeight * grid.getN()});
+
+			console.log(desk);
+			for (let i = 0; i < grid.getN(); i += 1) {
+				for (let j = 0; j < grid.getM(); j += 1) {
+					this.ctx.drawImage(this.gameImages[desk[i][j].getColorImageName()], startX + blockWidth * j, startY + blockHeight * i, blockWidth, blockHeight);
+					desk[i][j].setPosition({ x: startX + blockWidth * j, y: startY + blockHeight * i});
+					desk[i][j].setOldPosition({ x: startX + blockWidth * j, y: startY + blockHeight * i});
+					console.log(blockWidth)
+					desk[i][j].setSize({ width: blockWidth, height: blockHeight });
+					desk[i][j].setOldSize({ width: blockWidth, height: blockHeight });
+				}
 			}
 		}
+	}
+
+	private renderGrid(grid: Grid) {
+		const desk = grid.getDesk();
+		for (let i = 0; i < grid.getN(); i += 1) {
+			for (let j = 0; j < grid.getM(); j += 1) {
+				const { x, y } = desk[i][j].getPosition();
+				const { width, height } = desk[i][j].getSize();
+				this.ctx.drawImage(this.gameImages[desk[i][j].getColorImageName()], x, y, width, height);
+			}
+		}
+
 	}
 
 	private async load(el: HTMLImageElement, str: string) {
@@ -89,5 +117,9 @@ export default class View {
 			el.src = str;
 			el.addEventListener('load', () => resolve(this));
 		});
+	}
+
+	private clearScreen() {
+		this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
 	}
 }

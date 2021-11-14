@@ -1,10 +1,19 @@
-import Block from './block';
+import Block, { Coordinates } from './block';
 import { GridInfo } from './game';
+
+export type Size = {
+	width: number;
+	height: number;
+};
 
 export default class Grid {
 	private gridInfo: GridInfo;
 
 	private desk: Block[][] = [];
+
+	private position: Coordinates = { x: 0, y: 0 };
+
+	private size: Size = { height: 0, width: 0 };
 
 	constructor(gridInfo: GridInfo) {
 		this.gridInfo = gridInfo;
@@ -48,4 +57,30 @@ export default class Grid {
 	public getDesk() {
 		return this.desk;
 	}
+
+	public getGridInfo() {
+		return this.gridInfo;
+	}
+
+	public setDesk(desk: Block[][]) {
+		this.desk = desk;
+	}
+
+	public getPosition(): Coordinates {
+		return this.position;
+	}
+
+	public setPosition(position: Coordinates) {
+		this.position = position;
+	}
+
+	public getSize(): Size {
+		return this.size;
+	}
+
+	public setSize(size: Size) {
+		this.size = size;
+	}
+
+
 }
