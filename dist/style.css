@@ -1,0 +1,17 @@
+/*!****************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/styles/style.scss ***!
+  \****************************************************************************************************************/
+body, html {
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+@font-face {
+  font-family: "Marvin";
+  src: url(0b0440dad1201b851ced.otf);
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R5bGUuY3NzIiwibWFwcGluZ3MiOiI7OztBQUFBO0VBQ0U7RUFDQTtFQUNBO0FBQ0Y7O0FBRUE7RUFDRTtFQUNBO0VBRUE7RUFDQTtBQUFGLEMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly90ZXN0LXByb2plY3QtYmxhc3QtZ2FtZS8uL3NyYy9zdHlsZXMvc3R5bGUuc2NzcyJdLCJzb3VyY2VzQ29udGVudCI6WyJib2R5LCBodG1sIHtcclxuICBwYWRkaW5nOiAwICFpbXBvcnRhbnQ7XHJcbiAgbWFyZ2luOiAwICFpbXBvcnRhbnQ7XHJcbiAgb3ZlcmZsb3c6IGhpZGRlbjtcclxufVxyXG5cclxuQGZvbnQtZmFjZSB7XHJcbiAgZm9udC1mYW1pbHk6ICdNYXJ2aW4nO1xyXG4gIHNyYzogdXJsKCcuLi9mb250cy9tYXJ2aW4tZm9udC5vdGYnKTtcclxuICAvL3NyYzogbG9jYWwoJ0JhbmtHb3RoaWMgTWQgQlQnKSwgbG9jYWwoJ0JhbmtHb3RoaWNCVE1lZGl1bScpLCB1cmwoJ2JhbmtndGhkLXdlYmZvbnQud29mZicpIGZvcm1hdCgnd29mZicpLCB1cmwoJ2JhbmtndGhkLXdlYmZvbnQudHRmJykgZm9ybWF0KCd0cnVldHlwZScpLCB1cmwoJ2JhbmtndGhkLXdlYmZvbnQuc3ZnI3dlYmZvbnROZ1p0RE90TScpIGZvcm1hdCgnc3ZnJyk7XHJcbiAgZm9udC13ZWlnaHQ6IG5vcm1hbDtcclxuICBmb250LXN0eWxlOiBub3JtYWw7XHJcbn1cclxuIl0sIm5hbWVzIjpbXSwic291cmNlUm9vdCI6IiJ9*/

@@ -69,7 +69,6 @@ export default class World {
 				this.deskPositionTempList.push([row, col]);
 				this.deskPositionList.push([row, col]);
 				this.stage = Stage.Shading;
-				console.log(layout);
 				this._grid.blockLayout = layout;
 			}
 		}
@@ -81,13 +80,11 @@ export default class World {
 				const layout = this.grid.blockLayout;
 				layout[this.deskPositionList[0][0]][this.deskPositionList[0][1]].toggleSelect();
 				this.grid.blockLayout = layout;
-				console.log(this.grid.blockLayout);
 				this.stage = Stage.Selecting;
 				this.deskPositionList = [];
 				this.deskPositionTempList = [];
 			} else {
 				this.score.decreaseMovesNum();
-				console.log(this._grid.blockLayout);
 				this.deskPositionTempList = this.deskPositionList;
 				this.stage = Stage.Deleting;
 			}
@@ -156,7 +153,6 @@ export default class World {
 
 	private handleDeleting() {
 		if (this.deskPositionTempList.length === 0) {
-			console.log(this._grid.blockLayout);
 			this.stage = Stage.Moving;
 			this.deskPositionTempList = [];
 			return;
@@ -175,7 +171,6 @@ export default class World {
 
 	private handleMoving() {
 		if (this.deskPositionTempList.length >= this.deskPositionList.length) {
-			console.log(this._grid.blockLayout);
 			this.stage = Stage.Recovery;
 			return;
 		}
@@ -210,34 +205,36 @@ export default class World {
 
 	private handleRecovery() {
 		const desk = this._grid.blockLayout;
-		for (let i = 0; i < this._grid.n; i += 1) {
-			for (let j = 0; j < this._grid.m; j += 1) {
+		for (let i = this._grid.n - 1; i >= 0; i -= 1) {
+			for (let j = this._grid.m -1; j >= 0; j -= 1) {
 				if (desk[i][j].y !== desk[i][j].oldY || desk[i][j].isSelected()) {
-					let newRow = 0;
+					let newRow = -1000;
 					if (desk[i][j].isSelected()) {
 						desk[i][j].toggleSelect();
-						newRow = i - 1;
+						for (let r = i - 1; r >= 0; r -= 1) {
+							if (desk[i][j].oldY - desk[r][j].y < desk[i][j].height && desk[r][j].width !== 0 && !desk[r][j].isSelected() && !desk[r][j].isOccupied()) {
+								desk[r][j].occupied = true;
+								newRow = r;
+							}
+						}
 					} else {
 						newRow = i - Math.floor((desk[i][j].y - desk[i][j].oldY) / this.grid.itemHeight);
 					}
-					console.log(i, j, newRow);
 					if (newRow >= 0) {
 						desk[i][j].color = desk[newRow][j].oldColor;
 						desk[i][j].oldColor = desk[newRow][j].oldColor;
 					} else {
 						const randomColor = chooseColor(getRandomValue(this._grid.gridInfo.blockColors));
-						console.log(i, j, randomColor);
 						desk[i][j].color = randomColor;
 						desk[i][j].oldColor = randomColor;
 					}
-					console.log(this.grid.itemSize);
 					desk[i][j].size = this.grid.itemSize;
 					desk[i][j].position = { x: desk[i][j].x, y: desk[i][j].oldY };
+					if (desk[i][j].isOccupied()) desk[i][j].occupied = false;
 				}
 			}
 		}
 		this._grid.blockLayout = desk;
-		console.log(desk);
 		this.deskPositionList = [];
 		this.deskPositionTempList = [];
 		this.stage = Stage.Selecting;

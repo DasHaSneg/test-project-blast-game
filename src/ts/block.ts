@@ -4,6 +4,8 @@ import { Coordinates, ResizeType, Direction, Size } from './types';
 export default class Block {
 	private _selected = false;
 
+	private _occupied = false;
+
 	private _x = 0;
 
 	private _y = 0;
@@ -139,5 +141,17 @@ export default class Block {
 
 	public isSelected() {
 		return this._selected;
+	}
+
+	public set occupied(ocp: boolean) {
+		this._occupied = ocp;
+	}
+
+	public toggleOccupied() {
+		this._occupied = !this._occupied;
+	}
+
+	public isOccupied() {
+		return this._occupied;
 	}
 }
