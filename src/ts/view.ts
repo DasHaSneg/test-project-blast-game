@@ -1,125 +1,138 @@
 import assets from './assets';
-import Grid from './grid';
 import World from './world';
-import Block from './block';
-
-type Assets = {
-	[key: string]: boolean;
-};
+import { GameImages } from './types';
+import ImageRepository from './ImageRepository';
+import { IMAGE_SIZE_COEFFICIENT, MONEY, TELEPORT_COST } from './constants';
 
 export default class View {
-	private canvas: HTMLCanvasElement;
+	private _canvas: HTMLCanvasElement;
 
-	private ctx: CanvasRenderingContext2D;
+	private _ctx: CanvasRenderingContext2D;
 
-	private gameImages: { [key: string]: HTMLImageElement } = {};
+	private _gameImages: GameImages = {};
 
 	constructor(canvas: HTMLCanvasElement) {
-		this.canvas = canvas;
-		this.ctx = <CanvasRenderingContext2D>canvas.getContext('2d');
-	}
-
-	private async loadImages() {
-		const gameImages: { [key: string]: HTMLImageElement } = {};
-		for (const key in assets) {
-			const img = await this.loadImage(String((assets as Assets)[key as string]));
-			gameImages[key] = img;
-		}
-		return gameImages;
+		this._canvas = canvas;
+		this._ctx = <CanvasRenderingContext2D>canvas.getContext('2d');
 	}
 
 	public async init(world: World) {
-		this.gameImages = await this.loadImages();
-		this.renderGameScene(world.getGrid(), true);
+		const imageRepository = new ImageRepository(assets);
+		this._gameImages = await imageRepository.loadImages();
+		this.renderGameScene();
+		this.initGrid(world);
+		this.initProgressBar(world);
 	}
 
 	public update(world: World) {
 		this.clearScreen();
-		this.renderGameScene(world.getGrid());
-		this.renderGrid(world.getGrid());
+		this.renderGameScene();
+		this.renderGrid(world);
+		this.renderScore(world);
+		this.renderProgressBar(world);
+		this.renderBonus();
 	}
 
-	// private async renderProgressScale() {
-	// 	if (!this.gameImages.has(GameImage.progressScale)) {
-	// 		const progressScale = new Image();
-	// 		await this.load(progressScale, ProgressScale);
-	// 	}
-	//
-	// 	this.ctx.drawImage(progressScale, this.canvas.width / 2 - progressScale.width / 4 / 2 - 24, 28, progressScale.width / 4, progressScale.height / 4);
-	// }
-	//
-	private async loadImage(imgPath: string) {
-		const img = new Image();
-		await this.load(img, imgPath);
-		return img;
+	private renderGameScene() {
+		const { width, height } = this._canvas;
+		const { HeaderPanel, MoneyBlock } = this._gameImages;
+
+		this._ctx.fillStyle = '#a1a1a1';
+		this._ctx.fillRect(0, 0, width, height);
+		const dx = width / 2 - HeaderPanel.width / IMAGE_SIZE_COEFFICIENT / 2
+		this._ctx.drawImage(HeaderPanel, dx, 0, HeaderPanel.width / IMAGE_SIZE_COEFFICIENT, HeaderPanel.height / IMAGE_SIZE_COEFFICIENT);
+		this._ctx.drawImage(MoneyBlock, dx + 35, HeaderPanel.height / IMAGE_SIZE_COEFFICIENT / 10, MoneyBlock.width / IMAGE_SIZE_COEFFICIENT, MoneyBlock.height / IMAGE_SIZE_COEFFICIENT);
+
+		this._ctx.fillStyle = '#fff';
+		this._ctx.font = '20px Marvin';
+		this._ctx.fillText('прогресс', width / 2 - 70, 23);
+		this._ctx.fillText(`${MONEY}`, dx + MoneyBlock.width / IMAGE_SIZE_COEFFICIENT / 1.3, HeaderPanel.height / IMAGE_SIZE_COEFFICIENT / 2);
 	}
 
-	private renderGameScene(grid: Grid, isInit = false) {
-		const { width, height } = this.canvas;
-		const { HeaderPanel, ProgressBlock, ProgressScale, GamePanel, ScorePanel } = this.gameImages;
+	renderScore(world: World) {
+		const scorePanelImage = this._gameImages.ScorePanel;
+		const dx = this._canvas.width / 2 + 125;
+		const dy = this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 74;
+		const scoreTextDX = dx + scorePanelImage.width / IMAGE_SIZE_COEFFICIENT / 2;
+		this._ctx.drawImage(scorePanelImage, dx, dy, scorePanelImage.width / IMAGE_SIZE_COEFFICIENT, scorePanelImage.height / IMAGE_SIZE_COEFFICIENT);
+		this._ctx.font = '20px Marvin';
+		let text = 'время:';
+		this._ctx.fillText('время:', scoreTextDX - this._ctx.measureText(text).width / 2, dy);
+		this._ctx.font = '34px Marvin';
+		text = `${world.score.points}`;
+		this._ctx.fillText(text, scoreTextDX - this._ctx.measureText(text).width / 2, dy + scorePanelImage.height / IMAGE_SIZE_COEFFICIENT / 1.16);
+		this._ctx.font = '52px Marvin';
+		text = `${world.score.moves}`;
+		this._ctx.fillText(text, scoreTextDX - this._ctx.measureText(text).width / 2, dy + scorePanelImage.height / IMAGE_SIZE_COEFFICIENT / 2.5);
+		this._ctx.font = '20px Marvin';
+		text = 'очки:';
+		this._ctx.fillText(text, scoreTextDX - this._ctx.measureText(text).width / 2, dy + scorePanelImage.height / IMAGE_SIZE_COEFFICIENT / 1.4);
+	}
 
-		this.ctx.fillStyle = '#a1a1a1';
-		this.ctx.fillRect(0, 0, width, height);
-		this.ctx.drawImage(HeaderPanel, width / 2 - HeaderPanel.width / 4 / 2, 0, HeaderPanel.width / 4, HeaderPanel.height / 4);
+	private renderBonus() {
+		const { ScorePanel, HeaderPanel, Bonus, SelectedBonus } = this._gameImages;
+		const dx = this._canvas.width / 2 + 125;
+		const dy = HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 74 + ScorePanel.height / IMAGE_SIZE_COEFFICIENT;
+		const scoreTextDX = dx + ScorePanel.width / IMAGE_SIZE_COEFFICIENT / 2;
+		this._ctx.font = '20px Marvin';
+		let text = 'бонус';
+		this._ctx.fillText(text, scoreTextDX - this._ctx.measureText(text).width / 2, dy + 50);
+		this._ctx.drawImage(Bonus, scoreTextDX - Bonus.width / 3 / 2, dy + 50, Bonus.width / 3, Bonus.height / 3);
+		text = `${TELEPORT_COST}`;
+		this._ctx.fillText(text, scoreTextDX - this._ctx.measureText(text).width / 2 - 5, dy + Bonus.height / 3 + 20);
 
-		this.ctx.drawImage(ProgressBlock, width / 2 - ProgressBlock.width / 4 / 2 - 24, 28, ProgressBlock.width / 4, ProgressBlock.height / 4);
+	}
 
-		this.ctx.drawImage(ProgressScale, this.canvas.width / 2 - ProgressScale.width / 4 / 2 - 24, 28, ProgressScale.width / 4, ProgressScale.height / 4);
-
-		this.ctx.drawImage(GamePanel, width / 2 - GamePanel.width / 4, HeaderPanel.height / 4 + 50, GamePanel.width / 4, GamePanel.height / 4);
-
-
-		this.ctx.drawImage(ScorePanel, width / 2 + 125, HeaderPanel.height / 4 + 100, ScorePanel.width / 4, ScorePanel.height / 4);
-
-		this.ctx.fillStyle = '#fff';
-		this.ctx.font = '20px Marvin';
-		this.ctx.fillText('прогресс', width / 2 - 70, 23);
-		this.ctx.fillText('время:', width / 2 + 225, HeaderPanel.height / 4 + 50 + 20);
-
-		if (isInit) {
-			const startX = width / 2 - GamePanel.width / 4 + 7;
-			const startY = HeaderPanel.height / 4 + 50 + 7;
-			const desk = grid.getDesk();
-			const blockWidth = this.gameImages[desk[0][0].getColorImageName()].width / 3.03;
-			const blockHeight = this.gameImages[desk[0][0].getColorImageName()].height / 3.03;
-
-			grid.setPosition({ x: startX + blockWidth * grid.getM() + 5, y: startY });
-			grid.setSize({ width: blockWidth * grid.getM() + 5, height: blockHeight * grid.getN()});
-
-			console.log(desk);
-			for (let i = 0; i < grid.getN(); i += 1) {
-				for (let j = 0; j < grid.getM(); j += 1) {
-					this.ctx.drawImage(this.gameImages[desk[i][j].getColorImageName()], startX + blockWidth * j, startY + blockHeight * i, blockWidth, blockHeight);
-					desk[i][j].setPosition({ x: startX + blockWidth * j, y: startY + blockHeight * i});
-					desk[i][j].setOldPosition({ x: startX + blockWidth * j, y: startY + blockHeight * i});
-					console.log(blockWidth)
-					desk[i][j].setSize({ width: blockWidth, height: blockHeight });
-					desk[i][j].setOldSize({ width: blockWidth, height: blockHeight });
-				}
+	private renderGrid(world: World) {
+		this._ctx.drawImage(
+			this._gameImages.GamePanel,
+			this._canvas.width / 2 - this._gameImages.GamePanel.width / IMAGE_SIZE_COEFFICIENT,
+			this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 50,
+			this._gameImages.GamePanel.width / IMAGE_SIZE_COEFFICIENT,
+			this._gameImages.GamePanel.height / IMAGE_SIZE_COEFFICIENT
+		);
+		const desk = world.grid.blockLayout;
+		for (let i = 0; i < world.grid.n; i += 1) {
+			for (let j = 0; j < world.grid.m; j += 1) {
+				const { x, y } = desk[i][j].position;
+				const { width, height } = desk[i][j].size;
+				this._ctx.drawImage(this._gameImages[desk[i][j].getColorImageName()], x, y, width, height);
 			}
 		}
 	}
 
-	private renderGrid(grid: Grid) {
-		const desk = grid.getDesk();
-		for (let i = 0; i < grid.getN(); i += 1) {
-			for (let j = 0; j < grid.getM(); j += 1) {
-				const { x, y } = desk[i][j].getPosition();
-				const { width, height } = desk[i][j].getSize();
-				this.ctx.drawImage(this.gameImages[desk[i][j].getColorImageName()], x, y, width, height);
-			}
-		}
-
+	private renderProgressBar(world: World) {
+		const { ProgressBlock, ProgressScale } = this._gameImages;
+		const dx = this._canvas.width / 2 - ProgressScale.width / IMAGE_SIZE_COEFFICIENT / 2 - 24;
+		const dw = ProgressBlock.width / IMAGE_SIZE_COEFFICIENT;
+		this._ctx.drawImage(ProgressBlock, dx, 28, dw, ProgressBlock.height / IMAGE_SIZE_COEFFICIENT);
+		this._ctx.drawImage(ProgressScale, dx, 28, world.progressBar.width, ProgressScale.height / IMAGE_SIZE_COEFFICIENT + 1);
 	}
 
-	private async load(el: HTMLImageElement, str: string) {
-		return new Promise(resolve => {
-			el.src = str;
-			el.addEventListener('load', () => resolve(this));
-		});
+	private initGrid(world: World) {
+		let gameGrid = world.grid;
+		let desk = gameGrid.blockLayout;
+		const startX = this._canvas.width / 2 - this._gameImages.GamePanel.width / 4 + 7;
+		const startY = this._gameImages.HeaderPanel.height / 4 + 50 + 7;
+		const blockWidth = this._gameImages[desk[0][0].getColorImageName()].width / 3.03;
+		const blockHeight = this._gameImages[desk[0][0].getColorImageName()].height / 3.03;
+		gameGrid.init({ x: startX + blockWidth * gameGrid.m + 5, y: startY }, { width: blockWidth * gameGrid.m + 5, height: blockHeight * gameGrid.n }, { width: blockWidth, height: blockHeight });
+		for (let i = 0; i < gameGrid.n; i += 1) {
+			for (let j = 0; j < gameGrid.m; j += 1) {
+				this._ctx.drawImage(this._gameImages[desk[i][j].getColorImageName()], startX + blockWidth * j, startY + blockHeight * i, blockWidth, blockHeight);
+				desk[i][j].init({ x: startX + blockWidth * j, y: startY + blockHeight * i }, { width: blockWidth, height: blockHeight });
+			}
+		}
+		gameGrid.blockLayout = desk;
+		world.grid = gameGrid;
+	}
+
+	private initProgressBar(world: World) {
+		const progressBlock = this._gameImages.ProgressBlock;
+		world.progressBar.init(this._canvas.width / 2 - progressBlock.width / IMAGE_SIZE_COEFFICIENT / 2 - 24, progressBlock.width / IMAGE_SIZE_COEFFICIENT, 28, world.score.targetPoints);
 	}
 
 	private clearScreen() {
-		this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 	}
 }

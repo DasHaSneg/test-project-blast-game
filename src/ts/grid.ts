@@ -1,44 +1,59 @@
-import Block, { Coordinates } from './block';
-import { GridInfo } from './game';
-
-export type Size = {
-	width: number;
-	height: number;
-};
+import Block from './block';
+import { Coordinates, Size, GridInfo } from './types';
 
 export default class Grid {
-	private gridInfo: GridInfo;
+	private _gridInfo: GridInfo;
 
-	private desk: Block[][] = [];
+	private _blockLayout: Block[][] = [];
 
-	private position: Coordinates = { x: 0, y: 0 };
+	private _itemHeight = 0;
 
-	private size: Size = { height: 0, width: 0 };
+	private _itemWidth = 0;
+
+	private _x = 0;
+
+	private _y = 0;
+
+	private _height = 0;
+
+	private _width = 0;
 
 	constructor(gridInfo: GridInfo) {
-		this.gridInfo = gridInfo;
-		this.createDesk();
-		while (!this.checkDesk()) {
-			this.createDesk();
+		this._gridInfo = gridInfo;
+		this.createLayout();
+		let s = gridInfo.minStirringAmount;
+		while (!this.checkLayout() && s > 0) {
+			this.createLayout();
+			s -= 1;
+		}
+		if (s === 0) {
+			console.log('Game Over');
 		}
 	}
 
-	private createDesk() {
+	public init(position: Coordinates, size: Size, itemSize: Size) {
+		this.position = position;
+		this.size = size;
+		this.itemSize = itemSize;
+	}
+
+	private createLayout() {
 		const { n, m, blockColors } = this.gridInfo;
-		this.desk = [];
+		let layout: Block[][] = [];
 		for (let i = 0; i < n; i += 1) {
-			this.desk[i] = [];
+			layout[i] = [];
 			for (let j = 0; j < m; j += 1) {
-				this.desk[i][j] = new Block(blockColors);
+				layout[i][j] = new Block(blockColors);
 			}
 		}
+		this._blockLayout = layout;
 	}
 
-	private checkDesk(): boolean {
-		const { m } = this.gridInfo;
-		const { desk } = this;
+	private checkLayout(): boolean {
+		const { m } = this._gridInfo;
+		const layout = this._blockLayout;
 		for (let i = 0; i < m - 1; i += 1) {
-			const rowList = desk[i].map(block => block.getColor());
+			const rowList = layout[i].map(block => block.color);
 			const rowSet = new Set(rowList);
 			if (rowSet.size < rowList.length) return true;
 		}
@@ -46,41 +61,66 @@ export default class Grid {
 		// TODO add check for columns
 	}
 
-	public getN(): number {
-		return this.gridInfo.n;
+	public get n() {
+		return this._gridInfo.n;
 	}
 
-	public getM(): number {
-		return this.gridInfo.m;
+	public get m() {
+		return this._gridInfo.m;
 	}
 
-	public getDesk() {
-		return this.desk;
+	public get blockLayout() {
+		return this._blockLayout;
 	}
 
-	public getGridInfo() {
-		return this.gridInfo;
+	public set blockLayout(layout: Block[][]) {
+		this._blockLayout = layout;
 	}
 
-	public setDesk(desk: Block[][]) {
-		this.desk = desk;
+	public get gridInfo() {
+		return this._gridInfo;
 	}
 
-	public getPosition(): Coordinates {
-		return this.position;
+	public get x() {
+		return this._x;
 	}
 
-	public setPosition(position: Coordinates) {
-		this.position = position;
+	public get y() {
+		return this._y;
 	}
 
-	public getSize(): Size {
-		return this.size;
+	public get height() {
+		return this._height;
 	}
 
-	public setSize(size: Size) {
-		this.size = size;
+	public get width() {
+		return this._width;
 	}
 
+	public get itemHeight() {
+		return this._itemHeight;
+	}
 
+	public get itemWidth() {
+		return this._itemWidth;
+	}
+
+	public get itemSize() {
+		return { width: this._itemWidth, height: this._itemHeight };
+	}
+
+	public set itemSize(size: Size) {
+		this._itemWidth = size.width;
+		this._itemHeight = size.height;
+	}
+
+	public set position(position: Coordinates) {
+		this._x = position.x;
+		this._y = position.y;
+	}
+
+	public set size(size: Size) {
+		this._width = size.width;
+		this._height = size.height;
+	}
 }

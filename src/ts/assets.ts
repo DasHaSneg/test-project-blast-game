@@ -43,6 +43,15 @@ import RedBlock from '../img/game/blocks/red2.png';
 // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // // @ts-ignore
 // import SelectedRedBlock from '../img/game/selected_blocks/red2.png';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import Bonus from '../img/booster/bonus.png';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import SelectedBonus from '../img/booster/selected_bonus.png';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import MoneyBlock from '../img/booster/money.png';
 
 export default {
 	HeaderPanel,
@@ -55,6 +64,9 @@ export default {
 	PurpleBlock,
 	RedBlock,
 	YellowBlock,
+	Bonus,
+	SelectedBonus,
+	MoneyBlock,
 	// SelectedBlueBlock,
 	// SelectedGreenBlock,
 	// SelectedPurpleBlock,

@@ -1,65 +1,83 @@
-import { Coordinates } from './block';
-
-export enum Direction {
-	Right,
-	Left,
-}
+import { Coordinates, Direction } from './types';
 
 export default class ProgressBar {
-	private startX: number;
+	private _x = 0;
 
-	private currentX: number;
+	private _currentX = 0;
 
-	private endX: number;
+	private _endX = 0;
 
-	private velocity = 1;
+	private _velocity = 1;
 
-	private y: number;
+	private _y = 0;
 
-	private direction: Direction = Direction.Left;
+	private _direction: Direction = Direction.Right;
 
-	constructor(startX: number, width: number, y: number) {
-		const endX = startX + width;
-		this.startX = startX;
-		this.currentX = endX;
-		this.endX = endX;
-		this.y = y;
+	init(startX: number, width: number, y: number, targetPoints: number) {
+		this._x = startX;
+		if (this._direction === Direction.Right) {
+			this._currentX = startX;
+			this._endX = startX + width;
+		} else {
+			this._currentX = startX + width;
+			this._endX = startX;
+		}
+		this._y = y;
+		this._velocity = ProgressBar.calcVelocity(width, targetPoints);
+	}
+
+	private static calcVelocity(width: number, targetPoints: number): number {
+		return width / targetPoints;
 	}
 
 	private moveRight() {
-		this.currentX += this.velocity;
+		if (this._currentX >= this._endX) return;
+		this._currentX += this._velocity;
 	}
 
 	private moveLeft() {
-		this.currentX -= this.velocity;
+		this._currentX -= this._velocity;
 	}
 
-	public update() {
+	public move() {
 		if (this.direction === Direction.Left) this.moveLeft();
 		else this.moveRight();
 	}
 
-	public getCurrentPosition(): Coordinates {
-		return { x: this.currentX, y: this.y };
+	public get currentPosition(): Coordinates {
+		return { x: this._currentX, y: this._y };
 	}
 
-	public setVelocity(v: number) {
-		this.velocity = v;
+	public set velocity(v: number) {
+		this._velocity = v;
 	}
 
-	public setDirection(direction: Direction) {
-		this.direction = direction;
+	public setVelocityByWidth(width: number, targetPoints: number) {
+		this._velocity = ProgressBar.calcVelocity(width, targetPoints);
 	}
 
-	public setStartX(start: number) {
-		this.startX = start;
+	public set direction(direction: Direction) {
+		this._direction = direction;
 	}
 
-	public setEndX(width: number) {
-		this.endX = this.startX + width;
+	public set x(start: number) {
+		this._x = start;
+		this._currentX = start;
 	}
 
-	public setCurrentX(width: number) {
-		this.currentX = this.startX + width;
+	public set EndX(x: number) {
+		this._endX = x;
+	}
+
+	public setEndXByWidth(width: number) {
+		this._endX = this._x + width;
+	}
+
+	public set currentX(width: number) {
+		this._currentX = this._x + width;
+	}
+
+	public get width() {
+		return this._currentX - this._x;
 	}
 }

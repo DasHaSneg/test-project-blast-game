@@ -1,13 +1,10 @@
-import Block, { Coordinates, Direction, ResizeType } from './block';
+import Block from './block';
 import Grid from './grid';
 import ProgressBar from './progressBar';
-import { GridInfo } from './game';
-import { getRandomValue } from './utils';
-
-type Score = {
-	points: number;
-	movesNumber: number;
-};
+import { chooseColor, getRandomValue } from './utils';
+import { Direction, ResizeType, GridInfo } from './types';
+import Input from './input';
+import Score from './score';
 
 enum Stage {
 	Selecting,
@@ -17,20 +14,12 @@ enum Stage {
 	Recovery,
 }
 
-const POINTS_PER_TURN = 10;
-
 export default class World {
-	// private progress: number;
-	//
-	// private money: number;
-	//
-	private score: Score;
+	private _score: Score;
 
-	private target: Score;
+	private _grid: Grid;
 
-	private grid: Grid;
-
-	private progressBar: ProgressBar;
+	private _progressBar: ProgressBar;
 
 	private stage: Stage;
 
@@ -38,16 +27,14 @@ export default class World {
 
 	private deskPositionList: [number, number][] = [];
 
-	// private grid: number[];
 	constructor(gridInfo: GridInfo, x: number, y: number) {
-		this.target = { points: 0, movesNumber: y };
-		this.score = { points: x, movesNumber: 0 };
-		this.grid = new Grid(gridInfo);
-		this.progressBar = new ProgressBar(0, 0, 0);
+		this._grid = new Grid(gridInfo);
+		this._progressBar = new ProgressBar();
+		this._score = new Score(x, y);
 		this.stage = Stage.Selecting;
 	}
 
-	public update(userInput: Coordinates) {
+	public update(userInput: Input) {
 		switch (this.stage) {
 			case Stage.Selecting:
 				this.handleSelect(userInput);
@@ -69,80 +56,96 @@ export default class World {
 		}
 	}
 
-	private handleSelect(userInput: Coordinates) {
-		const uY = userInput.y;
+	private handleSelect(userInput: Input) {
 		const uX = userInput.x;
+		const uY = userInput.y;
 		if (uX !== 0 && uY !== 0) {
-			const { x, y } = this.grid.getPosition();
-			const { width, height } = this.grid.getSize();
+			const { x, y, n, m, width, height } = this._grid;
 			if (uY > y && uY < y + height && uX < x && uX > x - width) {
-				const n = this.grid.getN();
-				const m = this.grid.getM();
 				const row = Math.floor((uY - y) / (height / n));
 				const col = Math.floor((uX - (x - width)) / (width / m));
-				let desk = this.grid.getDesk();
-				desk[row][col].select();
+				const layout = this._grid.blockLayout;
+				layout[row][col].toggleSelect();
 				this.deskPositionTempList.push([row, col]);
 				this.deskPositionList.push([row, col]);
 				this.stage = Stage.Shading;
-				console.log(desk);
-				this.grid.setDesk(desk);
+				console.log(layout);
+				this._grid.blockLayout = layout;
 			}
 		}
 	}
 
 	private handleShading() {
-
 		if (this.deskPositionTempList.length === 0) {
-			console.log(this.grid.getDesk());
-			this.stage = Stage.Deleting;
-			this.deskPositionTempList = this.deskPositionList;
+			if (this.deskPositionList.length === 1) {
+				const layout = this.grid.blockLayout;
+				layout[this.deskPositionList[0][0]][this.deskPositionList[0][1]].toggleSelect();
+				this.grid.blockLayout = layout;
+				console.log(this.grid.blockLayout);
+				this.stage = Stage.Selecting;
+				this.deskPositionList = [];
+				this.deskPositionTempList = [];
+			} else {
+				this.score.decreaseMovesNum();
+				console.log(this._grid.blockLayout);
+				this.deskPositionTempList = this.deskPositionList;
+				this.stage = Stage.Deleting;
+			}
 			return;
 		}
 		let positionList: [number, number][] = [];
 		this.deskPositionTempList.forEach(([row, col]) => {
-			positionList = [...positionList, ...this.selectNeighbors(row, col, this.grid.getDesk())];
+			positionList = [...positionList, ...this.selectNeighbors(row, col, this._grid.blockLayout)];
 		});
 		this.deskPositionList = [...this.deskPositionList, ...positionList];
 		this.deskPositionTempList = positionList;
 	}
 
 	private selectNeighbors(row: number, col: number, desk: Block[][]): [number, number][] {
-		let deskPositionTempList: [number, number][] = [];
+		const deskPositionTempList: [number, number][] = [];
 		Object.values(Direction).forEach(direction => {
-			const deskPositionItem = this.selectNeighbor(direction, row, col, desk);
+			const deskPositionItem = this.findNeighbor(direction, row, col, desk, true);
 			if (typeof deskPositionItem.position[0] !== 'undefined') {
 				deskPositionTempList.push(deskPositionItem.position as [number, number]);
-				this.grid.setDesk(deskPositionItem.desk);
 			}
 		});
 		return deskPositionTempList;
 	}
 
-	private selectNeighbor(direction: Direction | string, row: number, col: number, desk: Block[][]): { position: [number, number]; desk: Block[][] } | { position: [undefined, undefined]; desk: Block[][] } {
+	// private checkNeighbors(row: number, col: number, desk: Block[][]): boolean {
+	// 	for (let i = 0; i < Object.values(Direction).length; i += 1) {
+	// 		const deskPositionItem = this.findNeighbor(Object.values(Direction)[i], row, col, desk, true);
+	// 		if (typeof deskPositionItem.position[0] !== 'undefined') {
+	// 			return true;
+	// 		}
+	// 	}
+	// 	return false;
+	// }
+
+	private findNeighbor(direction: Direction | string, row: number, col: number, desk: Block[][], select = false): { position: [number, number]; desk: Block[][] } | { position: [undefined, undefined]; desk: Block[][] } {
 		const { Up, Right, Left, Down } = Direction;
 		switch (direction) {
 			case Up:
-				if (row !== 0 && desk[row][col].getColor() === desk[row - 1][col].getColor() && !desk[row - 1][col].isSelected()) {
-					desk[row - 1][col].select();
+				if (row !== 0 && desk[row][col].color === desk[row - 1][col].color && !desk[row - 1][col].isSelected()) {
+					if (select) desk[row - 1][col].toggleSelect();
 					return { position: [row - 1, col], desk };
 				}
 				return { position: [undefined, undefined], desk };
 			case Right:
-				if (col !== this.grid.getM() - 1 && desk[row][col].getColor() === desk[row][col + 1].getColor() && !desk[row][col + 1].isSelected()) {
-					desk[row][col + 1].select();
+				if (col !== this._grid.m - 1 && desk[row][col].color === desk[row][col + 1].color && !desk[row][col + 1].isSelected()) {
+					if (select) desk[row][col + 1].toggleSelect();
 					return { position: [row, col + 1], desk };
 				}
 				return { position: [undefined, undefined], desk };
 			case Left:
-				if (col !== 0 && desk[row][col].getColor() === desk[row][col - 1].getColor() && !desk[row][col - 1].isSelected()) {
-					desk[row][col - 1].select();
+				if (col !== 0 && desk[row][col].color === desk[row][col - 1].color && !desk[row][col - 1].isSelected()) {
+					if (select) desk[row][col - 1].toggleSelect();
 					return { position: [row, col - 1], desk };
 				}
 				return { position: [undefined, undefined], desk };
 			case Down:
-				if (row !== this.grid.getN() - 1 && desk[row][col].getColor() === desk[row + 1][col].getColor() && !desk[row + 1][col].isSelected()) {
-					desk[row + 1][col].select();
+				if (row !== this._grid.n - 1 && desk[row][col].color === desk[row + 1][col].color && !desk[row + 1][col].isSelected()) {
+					if (select) desk[row + 1][col].toggleSelect();
 					return { position: [row + 1, col], desk };
 				}
 				return { position: [undefined, undefined], desk };
@@ -153,35 +156,37 @@ export default class World {
 
 	private handleDeleting() {
 		if (this.deskPositionTempList.length === 0) {
-			console.log(this.grid.getDesk());
+			console.log(this._grid.blockLayout);
 			this.stage = Stage.Moving;
 			this.deskPositionTempList = [];
 			return;
 		}
 		const [row, col] = this.deskPositionTempList[0];
-		const desk = this.grid.getDesk();
-		if (desk[row][col].getSize().height === 0 && desk[row][col].getSize().width === 0) {
+		const desk = this._grid.blockLayout;
+		if (desk[row][col].height === 0 && desk[row][col].width === 0) {
+			this._score.increasePoints();
+			this._progressBar.move();
 			this.deskPositionTempList = this.deskPositionTempList.slice(1);
 			return;
 		}
 		desk[row][col].resize(ResizeType.Shrink);
-		this.grid.setDesk(desk);
+		this._grid.blockLayout = desk;
 	}
 
 	private handleMoving() {
 		if (this.deskPositionTempList.length >= this.deskPositionList.length) {
-			console.log(this.grid.getDesk());
+			console.log(this._grid.blockLayout);
 			this.stage = Stage.Recovery;
 			return;
 		}
-		const desk = this.grid.getDesk();
-		for (let col = 0; col < this.grid.getM(); col += 1) {
+		const desk = this._grid.blockLayout;
+		for (let col = 0; col < this._grid.m; col += 1) {
 			const rows = this.deskPositionList
 				.filter(([r, c]) => c === col)
 				.map(([row]) => {
 					return row;
 				})
-				.sort()
+				.sort();
 			const velocity = 1;
 
 			if (rows.length === 1 && rows[0] === 0) {
@@ -191,7 +196,7 @@ export default class World {
 
 			for (let k = rows.length - 1; k >= 0; k -= 1) {
 				if (rows[k] - 1 < 0) break;
-				if (desk[rows[k] - 1][col].getPosition().y >= desk[rows[k]][col].getPosition().y) {
+				if (desk[rows[k] - 1][col].y >= desk[rows[k]][col].y) {
 					this.deskPositionTempList.push([rows[k], col]);
 					break;
 				}
@@ -200,44 +205,65 @@ export default class World {
 				}
 			}
 		}
-		this.grid.setDesk(desk);
+		this._grid.blockLayout = desk;
 	}
 
 	private handleRecovery() {
-		const desk = this.grid.getDesk();
-		for (let i = 0; i < this.grid.getN(); i += 1) {
-			for (let j = 0; j < this.grid.getM(); j += 1) {
-				if (desk[i][j].getPosition().y !== desk[i][j].getOldPosition().y || desk[i][j].isSelected()) {
+		const desk = this._grid.blockLayout;
+		for (let i = 0; i < this._grid.n; i += 1) {
+			for (let j = 0; j < this._grid.m; j += 1) {
+				if (desk[i][j].y !== desk[i][j].oldY || desk[i][j].isSelected()) {
 					let newRow = 0;
 					if (desk[i][j].isSelected()) {
-						desk[i][j].select();
+						desk[i][j].toggleSelect();
 						newRow = i - 1;
 					} else {
-						newRow = i - Math.floor((desk[i][j].getPosition().y - desk[i][j].getOldPosition().y) / desk[i][j].getOldSize().height);
+						newRow = i - Math.floor((desk[i][j].y - desk[i][j].oldY) / this.grid.itemHeight);
 					}
-					console.log(i, j, newRow)
+					console.log(i, j, newRow);
 					if (newRow >= 0) {
-						desk[i][j].setColor(desk[newRow][j].getOldColor());
-						desk[i][j].setOldColor(desk[newRow][j].getOldColor());
+						desk[i][j].color = desk[newRow][j].oldColor;
+						desk[i][j].oldColor = desk[newRow][j].oldColor;
 					} else {
-						const randomColor = desk[i][j].chooseColor(getRandomValue(this.grid.getGridInfo().blockColors));
-						desk[i][j].setColor(randomColor);
-						desk[i][j].setOldColor(randomColor);
+						const randomColor = chooseColor(getRandomValue(this._grid.gridInfo.blockColors));
+						console.log(i, j, randomColor);
+						desk[i][j].color = randomColor;
+						desk[i][j].oldColor = randomColor;
 					}
-					desk[i][j].setSize(desk[i][j].getOldSize());
-					desk[i][j].setPosition(desk[i][j].getOldPosition());
-
+					console.log(this.grid.itemSize);
+					desk[i][j].size = this.grid.itemSize;
+					desk[i][j].position = { x: desk[i][j].x, y: desk[i][j].oldY };
 				}
 			}
 		}
-		this.grid.setDesk(desk);
+		this._grid.blockLayout = desk;
 		console.log(desk);
 		this.deskPositionList = [];
 		this.deskPositionTempList = [];
 		this.stage = Stage.Selecting;
 	}
 
-	public getGrid(): Grid {
-		return this.grid;
+	public get grid(): Grid {
+		return this._grid;
+	}
+
+	public set grid(grid: Grid) {
+		this._grid = grid;
+	}
+
+	public get score(): Score {
+		return this._score;
+	}
+
+	public set score(score: Score) {
+		this._score = score;
+	}
+
+	public get progressBar(): ProgressBar {
+		return this._progressBar;
+	}
+
+	public set progressBar(prBar: ProgressBar) {
+		this._progressBar = prBar;
 	}
 }

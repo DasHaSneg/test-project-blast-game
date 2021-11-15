@@ -15,3 +15,20 @@ export function chooseColors(amount: number) {
 export function getRandomValue(array: number[]): number {
 	return array[Math.floor(Math.random() * array.length)];
 }
+
+export function chooseColor(colorNumber: number): string {
+	switch (colorNumber) {
+		case 1:
+			return 'BlueBlock';
+		case 2:
+			return 'GreenBlock';
+		case 3:
+			return 'PurpleBlock';
+		case 4:
+			return 'RedBlock';
+		case 5:
+			return 'YellowBlock';
+		default:
+			return 'BlueBlock';
+	}
+}
