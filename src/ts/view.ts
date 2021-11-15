@@ -52,7 +52,7 @@ export default class View {
 	renderScore(world: World) {
 		const scorePanelImage = this._gameImages.ScorePanel;
 		const dx = this._canvas.width / 2 + 125;
-		const dy = this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 74;
+		const dy = this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 54;
 		const scoreTextDX = dx + scorePanelImage.width / IMAGE_SIZE_COEFFICIENT / 2;
 		this._ctx.drawImage(scorePanelImage, dx, dy, scorePanelImage.width / IMAGE_SIZE_COEFFICIENT, scorePanelImage.height / IMAGE_SIZE_COEFFICIENT);
 		this._ctx.font = '20px Marvin';
@@ -72,7 +72,7 @@ export default class View {
 	private renderBonus() {
 		const { ScorePanel, HeaderPanel, Bonus, SelectedBonus } = this._gameImages;
 		const dx = this._canvas.width / 2 + 125;
-		const dy = HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 74 + ScorePanel.height / IMAGE_SIZE_COEFFICIENT;
+		const dy = HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 54 + ScorePanel.height / IMAGE_SIZE_COEFFICIENT;
 		const scoreTextDX = dx + ScorePanel.width / IMAGE_SIZE_COEFFICIENT / 2;
 		this._ctx.font = '20px Marvin';
 		let text = 'бонус';
@@ -87,7 +87,7 @@ export default class View {
 		this._ctx.drawImage(
 			this._gameImages.GamePanel,
 			this._canvas.width / 2 - this._gameImages.GamePanel.width / IMAGE_SIZE_COEFFICIENT,
-			this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 50,
+			this._gameImages.HeaderPanel.height / IMAGE_SIZE_COEFFICIENT + 30,
 			this._gameImages.GamePanel.width / IMAGE_SIZE_COEFFICIENT,
 			this._gameImages.GamePanel.height / IMAGE_SIZE_COEFFICIENT
 		);
@@ -113,7 +113,7 @@ export default class View {
 		let gameGrid = world.grid;
 		let desk = gameGrid.blockLayout;
 		const startX = this._canvas.width / 2 - this._gameImages.GamePanel.width / 4 + 7;
-		const startY = this._gameImages.HeaderPanel.height / 4 + 50 + 7;
+		const startY = this._gameImages.HeaderPanel.height / 4 + 30 + 7;
 		const blockWidth = this._gameImages[desk[0][0].getColorImageName()].width / 3.03;
 		const blockHeight = this._gameImages[desk[0][0].getColorImageName()].height / 3.03;
 		gameGrid.init({ x: startX + blockWidth * gameGrid.m + 5, y: startY }, { width: blockWidth * gameGrid.m + 5, height: blockHeight * gameGrid.n }, { width: blockWidth, height: blockHeight });
