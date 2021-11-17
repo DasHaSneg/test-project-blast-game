@@ -2,7 +2,6 @@ import View from './view';
 import World from './world';
 import { chooseColors } from './utils';
 import Input from './input';
-import ProgressBar from './progressBar';
 
 export default class Game {
 	private _view: View;

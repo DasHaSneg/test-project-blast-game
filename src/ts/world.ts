@@ -14,6 +14,8 @@ enum Stage {
 	Recovery,
 }
 
+type PositionList = [number, number][];
+
 export default class World {
 	private _score: Score;
 
@@ -23,9 +25,9 @@ export default class World {
 
 	private stage: Stage;
 
-	private deskPositionTempList: [number, number][] = [];
+	private deskPositionTempList: PositionList = [];
 
-	private deskPositionList: [number, number][] = [];
+	private deskPositionList: PositionList = [];
 
 	constructor(gridInfo: GridInfo, x: number, y: number) {
 		this._grid = new Grid(gridInfo);
@@ -90,7 +92,7 @@ export default class World {
 			}
 			return;
 		}
-		let positionList: [number, number][] = [];
+		let positionList: PositionList = [];
 		this.deskPositionTempList.forEach(([row, col]) => {
 			positionList = [...positionList, ...this.selectNeighbors(row, col, this._grid.blockLayout)];
 		});
@@ -98,8 +100,8 @@ export default class World {
 		this.deskPositionTempList = positionList;
 	}
 
-	private selectNeighbors(row: number, col: number, desk: Block[][]): [number, number][] {
-		const deskPositionTempList: [number, number][] = [];
+	private selectNeighbors(row: number, col: number, desk: Block[][]): PositionList {
+		const deskPositionTempList: PositionList = [];
 		Object.values(Direction).forEach(direction => {
 			const deskPositionItem = this.findNeighbor(direction, row, col, desk, true);
 			if (typeof deskPositionItem.position[0] !== 'undefined') {
