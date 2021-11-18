@@ -107,7 +107,7 @@ export default class GameWorld extends World {
 		const { x: uX, y: uY } = userInput;
 		const { x, y, width, height } = this._bonus;
 		if (checkClick(uX, uY, x, y, height, width)) {
-			if (this._money >= TELEPORT_COST) {
+			if (this._money >= TELEPORT_COST && !this.bonus.selected) {
 				this.bonus.toggleSelect();
 			}
 		}
