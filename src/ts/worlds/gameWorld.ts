@@ -207,8 +207,10 @@ export default class GameWorld extends World {
 		const [row, col] = this._tempList[0];
 		const desk = this._grid.blockLayout;
 		if (desk[row][col].height === 0 && desk[row][col].width === 0) {
-			if (!this.bonus.selected) this._score.increasePoints();
-			this._progressBar.move();
+			if (!this.bonus.selected) {
+				this._score.increasePoints();
+				this._progressBar.move();
+			}
 			const { points, targetPoints } = this._score;
 			if (points >= targetPoints) this._emitEFunc('endGame', Result.Win);
 			if (this.isLastMove) this._emitEFunc('endGame', Result.Lost);
