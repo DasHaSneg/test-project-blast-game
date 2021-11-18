@@ -92,8 +92,10 @@ export default class GameWorld extends World {
 			this._list.push([row, col]);
 			if (this._bonus.selected) {
 				if (this._list.length === 2) {
-					if (this._list[0][0] === this._list[1][0] && this._list[0][1] === this._list[1][1]) this._list = this._list.slice(1);
-					else {
+					if (this._list[0][0] === this._list[1][0] && this._list[0][1] === this._list[1][1]) {
+						if(layout[this._list[0][0]][this._list[0][1]].isSelected()) layout[this._list[0][0]][this._list[0][1]].toggleSelect();
+						this._list = [];
+					} else {
 						this._stage += 2;
 					}
 				}
