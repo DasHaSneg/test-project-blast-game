@@ -32,3 +32,7 @@ export function chooseColor(colorNumber: number): string {
 			return 'BlueBlock';
 	}
 }
+
+export function checkClick(uX: number, uY: number, x: number, y: number, height: number, width:number) {
+	return uY > y && uY < y + height && uX > x && uX < x + width
+}

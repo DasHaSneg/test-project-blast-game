@@ -35,8 +35,8 @@ export default class Block {
 	}
 
 	public getColorImageName(): string {
-		// return this.selected ? `Selected${this.color}` : this.color;
-		return this._color;
+		return this._selected ? `Selected${this.color}` : this.color;
+		// return this._color;
 	}
 
 	public resize(resizeType: ResizeType) {

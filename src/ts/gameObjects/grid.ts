@@ -1,7 +1,9 @@
-import Block from './block';
-import { Coordinates, Size, GridInfo } from './types';
+import Block from '../block';
+import { Coordinates, Size, GridInfo } from '../types';
+import { Result } from '../worlds/endWorld';
+import GameObject from './gameObject';
 
-export default class Grid {
+export default class Grid extends GameObject {
 	private _gridInfo: GridInfo;
 
 	private _blockLayout: Block[][] = [];
@@ -10,15 +12,8 @@ export default class Grid {
 
 	private _itemWidth = 0;
 
-	private _x = 0;
-
-	private _y = 0;
-
-	private _height = 0;
-
-	private _width = 0;
-
-	constructor(gridInfo: GridInfo) {
+	constructor(gridInfo: GridInfo, emitEFunc: (eName: string, arg: any) => void) {
+		super();
 		this._gridInfo = gridInfo;
 		this.createLayout();
 		let s = gridInfo.minStirringAmount;
@@ -27,7 +22,7 @@ export default class Grid {
 			s -= 1;
 		}
 		if (s === 0) {
-			console.log('Game Over');
+			emitEFunc('endGame', Result.Lost);
 		}
 	}
 
@@ -39,7 +34,7 @@ export default class Grid {
 
 	private createLayout() {
 		const { n, m, blockColors } = this.gridInfo;
-		let layout: Block[][] = [];
+		const layout: Block[][] = [];
 		for (let i = 0; i < n; i += 1) {
 			layout[i] = [];
 			for (let j = 0; j < m; j += 1) {
@@ -81,22 +76,6 @@ export default class Grid {
 		return this._gridInfo;
 	}
 
-	public get x() {
-		return this._x;
-	}
-
-	public get y() {
-		return this._y;
-	}
-
-	public get height() {
-		return this._height;
-	}
-
-	public get width() {
-		return this._width;
-	}
-
 	public get itemHeight() {
 		return this._itemHeight;
 	}
@@ -112,15 +91,5 @@ export default class Grid {
 	public set itemSize(size: Size) {
 		this._itemWidth = size.width;
 		this._itemHeight = size.height;
-	}
-
-	public set position(position: Coordinates) {
-		this._x = position.x;
-		this._y = position.y;
-	}
-
-	public set size(size: Size) {
-		this._width = size.width;
-		this._height = size.height;
 	}
 }

@@ -8,11 +8,12 @@ import GreenBlock from '../img/game/blocks/green.png';
 import YellowBlock from '../img/game/blocks/yellow.png';
 import PurpleBlock from '../img/game/blocks/purple.png';
 import RedBlock from '../img/game/blocks/red.png';
-// import SelectedBlueBlock from '../img/game/selected_blocks/blue.png';
-// import SelectedGreenBlock from '../img/game/selected_blocks/green.png';
-// import SelectedYellowBlock from '../img/game/selected_blocks/yellow.png';
-// import SelectedPurpleBlock from '../img/game/selected_blocks/purple.png';
-// import SelectedRedBlock from '../img/game/selected_blocks/red.png';
+import Button from '../img/end/button.png';
+import SelectedBlueBlock from '../img/game/selected_blocks/blue.png';
+import SelectedGreenBlock from '../img/game/selected_blocks/green.png';
+import SelectedYellowBlock from '../img/game/selected_blocks/yellow.png';
+import SelectedPurpleBlock from '../img/game/selected_blocks/purple.png';
+import SelectedRedBlock from '../img/game/selected_blocks/red.png';
 import Bonus from '../img/booster/bonus.png';
 import SelectedBonus from '../img/booster/selected_bonus.png';
 import MoneyBlock from '../img/booster/money.png';
@@ -31,9 +32,10 @@ export default {
 	Bonus,
 	SelectedBonus,
 	MoneyBlock,
-	// SelectedBlueBlock,
-	// SelectedGreenBlock,
-	// SelectedPurpleBlock,
-	// SelectedRedBlock,
-	// SelectedYellowBlock,
+	Button,
+	SelectedBlueBlock,
+	SelectedGreenBlock,
+	SelectedPurpleBlock,
+	SelectedRedBlock,
+	SelectedYellowBlock,
 };

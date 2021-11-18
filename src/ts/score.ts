@@ -1,3 +1,5 @@
+import { POINTS_PER_TURN } from './constants';
+
 export default class Score {
 	private _points = 0;
 
@@ -17,7 +19,7 @@ export default class Score {
 	}
 
 	public increasePoints() {
-		this._points += 1;
+		this._points += POINTS_PER_TURN;
 	}
 
 	public get moves() {

@@ -31,7 +31,4 @@ export type GridInfo = {
 export type GameImages = { [key: string]: HTMLImageElement };
 export type Assets = { [key: string]: string };
 
-// export type Score = {
-// 	points: number;
-// 	movesNumber: number;
-// };
+export type PositionList = [number, number][];
