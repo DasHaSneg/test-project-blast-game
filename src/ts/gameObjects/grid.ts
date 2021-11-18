@@ -45,15 +45,28 @@ export default class Grid extends GameObject {
 	}
 
 	private checkLayout(): boolean {
-		const { m } = this._gridInfo;
+		let result = false;
+		const { m, n } = this._gridInfo;
 		const layout = this._blockLayout;
-		for (let i = 0; i < m - 1; i += 1) {
+		let i = 0;
+		for (i = 0; i < m - 1; i += 1) {
 			const rowList = layout[i].map(block => block.color);
 			const rowSet = new Set(rowList);
-			if (rowSet.size < rowList.length) return true;
+			if (rowSet.size < rowList.length) {
+				result = true;
+				break;
+			}
 		}
-		return false;
-		// TODO add check for columns
+		for (i = 0; i < m; i += 1) {
+			for (let j = 1; j < n; j += 1) {
+				if (layout[j - 1][i] === layout[j][i]) {
+					result = true;
+					break;
+				}
+			}
+			if (result) break;
+		}
+		return result;
 	}
 
 	public get n() {
