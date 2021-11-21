@@ -1,4 +1,4 @@
-import Block from '../block';
+import Block from './block';
 import { Coordinates, Size, GridInfo } from '../types';
 import { Result } from '../worlds/endWorld';
 import GameObject from './gameObject';

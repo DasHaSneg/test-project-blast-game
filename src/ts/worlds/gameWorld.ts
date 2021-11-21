@@ -4,8 +4,8 @@ import Score from '../score';
 import Grid from '../gameObjects/grid';
 import ProgressBar from '../progressBar';
 import { Direction, GridInfo, PositionList, ResizeType } from '../types';
-import Block from '../block';
-import { checkClick, chooseColor, getRandomValue } from '../utils';
+import Block from '../gameObjects/block';
+import { checkClick, chooseColor, contains, getRandomValue } from '../utils';
 import { Result } from './endWorld';
 import Bonus from '../gameObjects/Bonus';
 import { TELEPORT_COST } from '../constants';
@@ -93,7 +93,7 @@ export default class GameWorld extends World {
 			if (this._bonus.selected) {
 				if (this._list.length === 2) {
 					if (this._list[0][0] === this._list[1][0] && this._list[0][1] === this._list[1][1]) {
-						if(layout[this._list[0][0]][this._list[0][1]].isSelected()) layout[this._list[0][0]][this._list[0][1]].toggleSelect();
+						if (layout[this._list[0][0]][this._list[0][1]].isSelected()) layout[this._list[0][0]][this._list[0][1]].toggleSelect();
 						this._list = [];
 					} else {
 						this._stage += 2;
@@ -201,7 +201,7 @@ export default class GameWorld extends World {
 		if (this._tempList.length === 0) {
 			if (this.bonus.selected) this._stage += 2;
 			else this._stage += 1;
-			this._tempList = [];
+			this._list.sort(([n1], [n2]) => (n1 > n2 ? 1 : -1));
 			return;
 		}
 		const [row, col] = this._tempList[0];
@@ -225,40 +225,41 @@ export default class GameWorld extends World {
 			this._stage += 1;
 			return;
 		}
-		const desk = this._grid.blockLayout;
+		const layout = this._grid.blockLayout;
+		let rows = [];
+		const velocity = 1;
 		for (let col = 0; col < this._grid.m; col += 1) {
-			const rows = this._list
-				.filter(([r, c]) => c === col)
-				.map(([row]) => {
-					return row;
-				})
-				.sort();
-			const velocity = 1;
-			if (rows.length === 1 && rows[0] === 0) {
-				this._tempList.push([rows[0], col]);
-				break;
-			}
-			for (let k = rows.length - 1; k >= 0; k -= 1) {
-				if (rows[k] - 1 < 0) break;
-				if (desk[rows[k] - 1][col].y >= desk[rows[k]][col].y) {
-					this._tempList.push([rows[k], col]);
-					break;
-				}
-				for (let i = rows[k] - 1; i >= 0; i -= 1) {
-					desk[i][col].move(Direction.Down, velocity);
+			rows = this._list.filter(([r, c]) => c === col).map(([r]) => r);
+			for (let rowNum = rows.length - 1; rowNum >= 0; rowNum -= 1) {
+				if (rows[rowNum] - 1 < 0) {
+					if (!contains(this._tempList, [rows[rowNum], col])) this._tempList.push([rows[rowNum], col]);
+					if (this._tempList.length >= this._list.length) break;
+				} else {
+					for (let row = rows[rowNum] - 1; row >= 0; row -= 1) {
+						layout[row][col].move(Direction.Down, velocity);
+					}
+					if (layout[rows[rowNum] - 1][col].y >= layout[rows[rowNum]][col].y) {
+						if (!contains(this._tempList, [rows[rowNum], col])) this._tempList.push([rows[rowNum], col]);
+						if (this._tempList.length >= this._list.length) break;
+					}
 				}
 			}
+			if (this._tempList.length >= this._list.length) break;
 		}
 	}
 
 	private handleRecovery() {
 		if (this.bonus.selected) {
 			let temp = '';
-			const block1 = this._grid.blockLayout[this._list[0][0]][this._list[0][1]];
-			const block2 = this._grid.blockLayout[this._list[1][0]][this._list[1][1]];
+			const [[n1, m1], [n2, m2]] = this._list;
+			const block1 = this._grid.blockLayout[n1][m1];
+			const block2 = this._grid.blockLayout[n2][m2];
+			// [block1.color, block2.color] = [block2.color, block1.color];
 			temp = block1.color;
 			block1.color = block2.color;
+			block1.oldColor = block2.color;
 			block2.color = temp;
+			block2.oldColor = temp;
 			block1.toggleSelect();
 			block2.toggleSelect();
 			block1.size = this.grid.itemSize;
@@ -300,7 +301,6 @@ export default class GameWorld extends World {
 				}
 			}
 		}
-		this._grid.blockLayout = layout;
 		this._list = [];
 		this._tempList = [];
 		this._stage = Stage.Selecting;

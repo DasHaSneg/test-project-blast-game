@@ -36,3 +36,12 @@ export function chooseColor(colorNumber: number): string {
 export function checkClick(uX: number, uY: number, x: number, y: number, height: number, width:number) {
 	return uY > y && uY < y + height && uX > x && uX < x + width
 }
+
+export function contains(arr: [number, number][], elem: [number, number]) {
+	for (let i = 0; i < arr.length; i += 1) {
+		if (arr[i][0] === elem[0] && arr[i][1] === elem[1]) {
+			return true;
+		}
+	}
+	return false;
+}
