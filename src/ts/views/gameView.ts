@@ -112,7 +112,7 @@ export default class GameView extends View {
 		const dx = this._canvas.width / 2 - ProgressScale.width / IMAGE_SIZE_COEFFICIENT / 2 - 24;
 		const dw = ProgressBlock.width / IMAGE_SIZE_COEFFICIENT;
 		this._ctx.drawImage(ProgressBlock, dx, 28, dw, ProgressBlock.height / IMAGE_SIZE_COEFFICIENT);
-		this._ctx.drawImage(ProgressScale, dx, 28, world.progressBar.width, ProgressScale.height / IMAGE_SIZE_COEFFICIENT + 1);
+		this._ctx.drawImage(ProgressScale, dx, 29, world.progressBar.width, ProgressScale.height / IMAGE_SIZE_COEFFICIENT + 1);
 	}
 
 	private initGrid(world: GameWorld) {

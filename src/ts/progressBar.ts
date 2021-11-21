@@ -1,4 +1,5 @@
 import { Coordinates, Direction } from './types';
+import { POINTS_PER_TURN } from './constants';
 
 export default class ProgressBar {
 	private _x = 0;
@@ -27,7 +28,7 @@ export default class ProgressBar {
 	}
 
 	private static calcVelocity(width: number, targetPoints: number): number {
-		return width / targetPoints;
+		return (width / targetPoints) * POINTS_PER_TURN;
 	}
 
 	private moveRight() {
